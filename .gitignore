@@ -4,3 +4,4 @@ pip-selfcheck.json
 bin/*
 .idea/*
 tool/data.csv
+tool/try.py
