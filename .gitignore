@@ -2,3 +2,5 @@ include/*
 lib/*
 pip-selfcheck.json
 bin/*
+.idea/*
+tool/data.csv
