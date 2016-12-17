@@ -16,14 +16,30 @@ class MainView:
         mainframe.columnconfigure(0, weight=1)
         mainframe.rowconfigure(0, weight=1)
 
+        port = StringVar()
+        port.set(" ")  # initial value
+
         ttk.Label(mainframe, text="Select Port").grid(column=1, row=1, sticky=W)
-        ttk.Button(mainframe, text="Realtime Plot", command=self.real_time_plotting).grid(column=1, row=2, sticky=W)
+        port_list = serial_ports()
+        port_list.insert(0," ")
+        print(port_list)
+        port = StringVar(mainframe)
+        port.set(port_list[1])  # default value
+        dropdown = ttk.OptionMenu(mainframe,port,*port_list)
+        dropdown.configure(width=20)
+        dropdown.grid(column=2, row=1, sticky=W)
+        #apply(dropdown, (mainframe, port) + tuple(port_list))
+
+
+
+        ttk.Button(mainframe, text="Realtime Plot", command=self.real_time_plotting(port)).grid(column=1, row=2, sticky=W)
 
         ttk.Button(mainframe, text="Record Session", command=self.record_session).grid(column=2, row=2, sticky=W)
         for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
 
-    def real_time_plotting(self):
+    def real_time_plotting(self,port):
         print("real_time_plotting")
+        print("selected port", port)
         #self.newWindow = Toplevel(root)
         #self.app = Create_host(self.newWindow)
 
