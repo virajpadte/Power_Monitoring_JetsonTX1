@@ -73,6 +73,9 @@ class MainView:
         return result
 
 class record_session:
+    #class variable:
+    path  = ""
+
     def __init__(self, master,port):
         self.master = master
         self.master.title("Session parameters")
@@ -83,16 +86,20 @@ class record_session:
 
         print("passed port", port)
         duration = StringVar()
+        autoplot = IntVar()
+        autoplot.set(0)  # initial value
 
         ttk.Button(mainframe, text="Select a location to store session.csv file", command=self.select_dir).grid(column=1, row=1, sticky=W)
         ttk.Label(mainframe, text="Record Duration in seconds:").grid(column=1, row=2, sticky=W)
         duration_entry_box = ttk.Entry(mainframe, width=5, textvariable=duration)
         duration_entry_box.grid(column=2, row=2, sticky=W)
-        ttk.Button(mainframe, text="Start recording", command=self.record(port)).grid(column=1, row=4, sticky=W)
+        ttk.Checkbutton(mainframe, text="Auto Plotting enabled", variable=autoplot).grid(column=1, row=3, sticky=W)
+        ttk.Button(mainframe, text="Start recording", command=lambda: self.record(port,autoplot)).grid(column=1, row=4, sticky=W)
 
         for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
 
     def select_dir(self):
+        global path
         print("select dir")
         path = tkFileDialog.askdirectory()
         #append file name to the path
@@ -100,8 +107,11 @@ class record_session:
             path = path + "/session.csv"
             print(path)
 
-    def record(self,port):
+    def record(self,port,autoplot):
+        global path
         print("recording")
+        autoplot_status = autoplot.get()
+        print("autoplot_status", autoplot_status)
         connected = False
         ## establish connection to the serial port that your arduino
         ## is connected to.
@@ -117,7 +127,7 @@ class record_session:
             connected = True
 
         #open text file to store the power values
-        text_file = open("data.csv", 'w')
+        text_file = open(path, 'w')
         #read serial data from arduino and
         #write it to the text file 'Data.csv'
         try:

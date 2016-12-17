@@ -2,17 +2,11 @@ from Tkinter import *
 
 master = Tk()
 
-var = StringVar(master)
-var.set("one") # initial value
+var = IntVar()
 
-option = OptionMenu(master, var, "one", "two", "three", "four")
-option.pack()
+c = Checkbutton(master, text="Expand", variable=var,  command=lambda: status(var))
+c.pack()
 
-def ok():
-    print "value is", var.get()
-    master.quit()
-
-button = Button(master, text="OK", command=ok)
-button.pack()
-
+def status(var):
+    print(var.get())
 mainloop()
