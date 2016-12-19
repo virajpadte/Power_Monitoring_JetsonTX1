@@ -151,7 +151,7 @@ class record_session:
         ttk.Label(mainframe, text="Record Duration in seconds:").grid(column=1, row=2, sticky=W)
         duration_entry_box = ttk.Entry(mainframe, width=5, textvariable=duration)
         duration_entry_box.grid(column=2, row=2, sticky=W)
-        ttk.Checkbutton(mainframe, text="Auto Plotting enabled", variable=autoplot).grid(column=1, row=3, sticky=W)
+        #ttk.Checkbutton(mainframe, text="Auto Plotting enabled", variable=autoplot).grid(column=1, row=3, sticky=W)
         ttk.Button(mainframe, text="Start recording", command=lambda: self.record(port,autoplot)).grid(column=1, row=4, sticky=W)
 
         for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
