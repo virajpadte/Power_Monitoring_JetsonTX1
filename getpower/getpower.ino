@@ -18,5 +18,5 @@ void loop(void)
   //Power
   float power_W = current_mA * 19/1000;
   Serial.println(power_W);
-  delay(20);
+  delay(30);
 }

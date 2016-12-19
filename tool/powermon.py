@@ -5,9 +5,19 @@ import ttk
 import tkFileDialog
 from Tkinter import *
 
+#for plotting we need these:
+import matplotlib
+matplotlib.use("TkAgg")
+import matplotlib.pyplot as plt
+from drawnow import *
 
 
 class MainView:
+
+    #CLASS VARIABLES:
+    closing_status = False
+    powerW = []
+
     def __init__(self, master):
         self.master = master
 
@@ -28,20 +38,11 @@ class MainView:
         dropdown = ttk.OptionMenu(mainframe,port,*port_list)
         dropdown.configure(width=20)
         dropdown.grid(column=2, row=1, sticky=W)
-        #apply(dropdown, (mainframe, port) + tuple(port_list))
-
-
 
         ttk.Button(mainframe, text="Realtime Plot",  command=lambda: self.real_time_plotting(port)).grid(column=1, row=2, sticky=W)
 
         ttk.Button(mainframe, text="Record Session", command=lambda: self.record_session(port)).grid(column=2, row=2, sticky=W)
         for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-    def real_time_plotting(self,port):
-        print("real_time_plotting")
-        print("record port", port.get())
-        #self.newWindow = Toplevel(root)
-        #self.app = Create_host(self.newWindow)
 
     def record_session(self,port):
         print("record_session")
@@ -51,13 +52,6 @@ class MainView:
         self.app = record_session(self.newWindow,port)
 
     def serial_ports(self):
-        """ Lists serial port names
-
-            :raises EnvironmentError:
-                On unsupported or unknown platforms
-            :returns:
-                A list of the serial ports available on the system
-        """
         if sys.platform.startswith('win'):
             ports = ['COM%s' % (i + 1) for i in range(256)]
         elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
@@ -71,6 +65,70 @@ class MainView:
         result = []
         result = ports
         return result
+
+    def handle_close(self):
+        print('Closed Figure!')
+        self.closing_status = True
+
+    def real_time_plotting(self,port):
+
+        cnt = 0
+        window_size = 20
+        connected = False
+
+
+        port = port.get()
+        print("real_time_plotting")
+        print("realtime data port", port)
+        try:
+            print("trying to connect to device....")
+            ser = serial.Serial(port, 115200)
+        except:
+            print "Failed to connect on", port
+
+        # ## loop until the arduino tells us it is ready
+        while not connected:
+            serin = ser.read()
+            connected = True
+
+        try:
+            while not self.closing_status:  # While loop that loops forever
+                if ser.inWaiting():  # Wait here until there is data
+                    power = ser.readline()  # read the line of text from the serial port
+                    print(power)
+                    self.powerW.append(power)  # Build our tempF array by appending temp readings
+                    drawnow(self.makeFig)  # Call drawnow to update our live graph
+                    plt.pause(.000001)  # Pause Briefly. Important to keep drawnow from crashing
+                    cnt = cnt + 1
+                    if (cnt > window_size):  # If you have 50 or more points, delete the first one from the array
+                        self.powerW.pop(0)  # This allows us to just see the last 50 data points
+            print("closing port")
+            ser.close()
+        except KeyboardInterrupt:
+            print("closing port")
+            ser.close()
+
+    def makeFig(self):  # Create a function that makes our desired plot
+
+        # configure the plot
+        plt.ion()  # Tell matplotlib you want interactive mode to plot live data
+        plt.rcParams['toolbar'] = 'None'
+
+        # create a fig
+        #fig = plt.figure(0)
+        #fig.canvas.set_window_title('Window 3D')
+        #fig.canvas.mpl_connect('close_event', self.handle_close())
+
+        plt.ylim(0, 15)  # Set y min and max values
+        plt.title('Plotting power consumption')  # Plot the title
+        plt.grid(True)  # Turn the grid on
+        plt.ylabel('Power (Watts)')  # Set ylabels
+        plt.plot(self.powerW, 'ro-', label='Power W')  # plot the temperature
+        plt.legend(loc='upper right')  # plot the legend
+
+    def handle_close(self):
+        print('Closed Figure!')
+        self.closing_status = True
 
 class record_session:
     #class variable:
@@ -148,6 +206,4 @@ if __name__ == '__main__':
     root.title("Power Monitoring tool")
     main = MainView(root)
     root.mainloop()
-
-    #establish_connection('/dev/tty.usbmodem1431')
 

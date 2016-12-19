@@ -1,0 +1,9 @@
+cycler==0.10.0
+drawnow==0.71.2
+matplotlib==1.5.3
+numpy==1.11.2
+pyparsing==2.1.10
+pyserial==3.2.1
+python-dateutil==2.6.0
+pytz==2016.10
+six==1.10.0
